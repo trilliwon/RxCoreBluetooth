@@ -24,10 +24,12 @@ centralManager.rx
 
 ```
 
-### For CBCentralManager Delegates
+##### - For CBCentralManager Delegates
 ![CentralManager](https://github.com/trilliwon/RxCoreBluetooth/blob/master/images/central.png?raw=true)
 
-### For CBPeripheral Delegates
+
+
+##### - For CBPeripheral Delegates
 ![Peripheral](https://github.com/trilliwon/RxCoreBluetooth/blob/master/images/peripheral.png?raw=true)
 
 ---
