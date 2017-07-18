@@ -1,9 +1,10 @@
 # RxCoreBluetooth
 
-RxCoreBluetooth is RxSwift Extension of CoreBluetooth
+RxCoreBluetooth is a CoreBluetooth Extension for RxSwift
 
+---
 
-### Usage
+## Usage
 
 ```
 /// Bind CBManager State
@@ -22,3 +23,21 @@ centralManager.rx
 .disposed(by: disposeBag)
 
 ```
+
+### For CBCentralManager Delegates
+![CentralManager](https://github.com/trilliwon/RxCoreBluetooth/blob/master/images/central.png?raw=true)
+
+### For CBPeripheral Delegates
+![Peripheral](https://github.com/trilliwon/RxCoreBluetooth/blob/master/images/peripheral.png?raw=true)
+
+---
+
+## Author
+
+Won, trilliwon@gmail.com
+
+---
+
+## License
+
+RxCoreBluetooth is available under the MIT license. See the LICENSE file for more info.
