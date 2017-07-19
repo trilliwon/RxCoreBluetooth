@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E330F7BD1F1F49C900EF781C /* RxBlocking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E330F7BB1F1F49C900EF781C /* RxBlocking.framework */; };
+		E330F7BE1F1F49C900EF781C /* RxTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E330F7BC1F1F49C900EF781C /* RxTest.framework */; };
 		E3CEF0E51F1DA2C30029D7F9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3CEF0E41F1DA2C30029D7F9 /* AppDelegate.swift */; };
 		E3CEF0E71F1DA2C30029D7F9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3CEF0E61F1DA2C30029D7F9 /* ViewController.swift */; };
 		E3CEF0EA1F1DA2C30029D7F9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E3CEF0E81F1DA2C30029D7F9 /* Main.storyboard */; };
@@ -33,6 +35,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E330F7BB1F1F49C900EF781C /* RxBlocking.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxBlocking.framework; path = Carthage/Build/iOS/RxBlocking.framework; sourceTree = "<group>"; };
+		E330F7BC1F1F49C900EF781C /* RxTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxTest.framework; path = Carthage/Build/iOS/RxTest.framework; sourceTree = "<group>"; };
 		E3CEF0E11F1DA2C30029D7F9 /* RxCoreBluetooth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RxCoreBluetooth.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3CEF0E41F1DA2C30029D7F9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E3CEF0E61F1DA2C30029D7F9 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -67,6 +71,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E330F7BD1F1F49C900EF781C /* RxBlocking.framework in Frameworks */,
+				E330F7BE1F1F49C900EF781C /* RxTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,6 +138,8 @@
 		E3CEF10D1F1DA4080029D7F9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E330F7BB1F1F49C900EF781C /* RxBlocking.framework */,
+				E330F7BC1F1F49C900EF781C /* RxTest.framework */,
 				E3CEF10E1F1DA4080029D7F9 /* RxCocoa.framework */,
 				E3CEF10F1F1DA4080029D7F9 /* RxSwift.framework */,
 			);
@@ -446,6 +454,10 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = J2WX5LW4CC;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = RxCoreBluetoothTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.trilliwon.RxCoreBluetoothTests;
@@ -461,6 +473,10 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = J2WX5LW4CC;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = RxCoreBluetoothTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.trilliwon.RxCoreBluetoothTests;
