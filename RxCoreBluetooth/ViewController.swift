@@ -20,7 +20,7 @@ class ViewController: UIViewController {
   @IBOutlet weak var scanButton: UIBarButtonItem!
   @IBOutlet weak var stateLabel: UILabel!
 
-  var discovereds: [Discovered] = [] {
+  var discovereds: [CBPeripheral] = [] {
     didSet {
       self.tableView.reloadData()
     }
@@ -31,22 +31,17 @@ class ViewController: UIViewController {
 
     /// Bind CBManager State
     centralManager.rx.state
-      .bind { [unowned self] in
-
-        self.stateLabel.text = $0.debugDescription
-
-        if $0 == .poweredOn {
-          self.centralManager.scanForPeripherals(withServices: nil, options: nil)
-        }
-
+      .filter{ $0 == .poweredOn }
+      .bind { [unowned self] _ in
+        self.centralManager.scanForPeripherals(withServices: nil, options: nil)
       }.disposed(by: disposeBag)
 
     /// Bind Discovered Peripheral
     centralManager.rx
       .didDiscover
       .bind { [unowned self] discovered in
-        if !self.discovereds.contains { $0.0.identifier.uuidString == discovered.peripheral.identifier.uuidString } {
-          self.discovereds.append(discovered)
+        if !self.discovereds.contains { $0 == discovered.peripheral } {
+          self.discovereds.append(discovered.peripheral)
         }
       }
       .disposed(by: disposeBag)
@@ -62,8 +57,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell: UITableViewCell = tableView.dequeueReusableCell(withIdentifier: "PeripheralCell", for: indexPath)
-    cell.textLabel?.text = discovereds[indexPath.row].peripheral.name ?? "No Name"
-    cell.detailTextLabel?.text = "\(discovereds[indexPath.row].RSSI)"
+    cell.textLabel?.text = discovereds[indexPath.row].name ?? "No Name"
+    cell.detailTextLabel?.text = "\(discovereds[indexPath.row].identifier.uuidString)"
     return cell
   }
 

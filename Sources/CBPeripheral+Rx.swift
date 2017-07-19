@@ -1,9 +1,9 @@
 //
 //  CBPeripheral+Rx.swift
-//  IO
+//  trilliwon
 //
 //  Created by won on 04/07/2017.
-//  Copyright © 2017 IO inc. All rights reserved.
+//  Copyright © 2017 trilliwon inc. All rights reserved.
 //
 
 import CoreBluetooth
@@ -12,120 +12,150 @@ import RxCocoa
 
 extension CBPeripheral {
 
-	/// Factory method that enables subclasses to implement their own `delegate`.
-	///
-	/// - returns: Instance of delegate proxy that wraps `delegate`.
-	public func createRxDelegateProxy() -> RxCBPeripheralDelegateProxy {
-		return RxCBPeripheralDelegateProxy(parentObject: self)
-	}
+  /// Factory method that enables subclasses to implement their own `delegate`.
+  ///
+  /// - returns: Instance of delegate proxy that wraps `delegate`.
+  public func createRxDelegateProxy() -> RxCBPeripheralDelegateProxy {
+    return RxCBPeripheralDelegateProxy(parentObject: self)
+  }
 }
-
-public typealias RSSIAndError = (RSSI: NSNumber, error: Error?)
-public typealias ServiceAndError = (service: CBService, error: Error?)
-public typealias CharacteristicAndError = (characteristic: CBCharacteristic, error: Error?)
-public typealias DescriptorAndError = (descriptor: CBDescriptor, error: Error?)
 
 extension Reactive where Base: CBPeripheral {
 
-	public var delegate: DelegateProxy {
-		return RxCBPeripheralDelegateProxy.proxyForObject(base)
-	}
+  public var delegate: DelegateProxy {
+    return RxCBPeripheralDelegateProxy.proxyForObject(base)
+  }
 
-	public var didUpdateName: Observable<Void> {
-		return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<Void> in
-			return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheralDidUpdateName(_:)))
-				.map({ _ in })
-		}
-	}
+  /// For more information take a look at `CBPeripheralDelegate`.
+  public var didUpdateName: Observable<CBPeripheral> {
+    return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<CBPeripheral> in
+      return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheralDidUpdateName(_:)))
+        .map({
+          /// $0[0] CBPeripheral
+          guard let peripheral = $0[0] as? CBPeripheral else { fatalError() }
+          return peripheral
+        })
+    }
+  }
 
-	public var didModifyServices: Observable<[CBService]> {
-		return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<[CBService]> in
-			return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didModifyServices:)))
-				.map({
-					/// $0[0] CBPeripheral
-					/// $0[1] invalidatedServices: [CBService]
-					guard let invalidatedServices = $0[1] as? [CBService] else { fatalError() }
-					return invalidatedServices
-				})
-		}
-	}
+  /// For more information take a look at `CBPeripheralDelegate`.
+  public var didModifyServices: Observable<(peripheral: CBPeripheral, invalidatedServices: [CBService])> {
+    return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<(peripheral: CBPeripheral, invalidatedServices: [CBService])> in
+      return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didModifyServices:)))
+        .map({
+          /// $0[0] CBPeripheral
+          /// $0[1] invalidatedServices: [CBService]
+          guard let peripheral = $0[0] as? CBPeripheral else { fatalError() }
+          guard let invalidatedServices = $0[1] as? [CBService] else { fatalError() }
+          return (peripheral, invalidatedServices)
+        })
+    }
+  }
 
-	public var didReadRSSI: Observable<RSSIAndError> {
-		return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<RSSIAndError> in
-			return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didReadRSSI:error:)))
-				.map({
-					guard let RSSI = $0[1] as? NSNumber else { fatalError() }
-					return (RSSI: RSSI, error: $0[2] as? Error)
-				})
-		}
-	}
+  /// For more information take a look at `CBPeripheralDelegate`.
+  public var didReadRSSI: Observable<(peripheral: CBPeripheral, RSSI: NSNumber, error: Error?)> {
+    return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<(peripheral: CBPeripheral, RSSI: NSNumber, error: Error?)> in
+      return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didReadRSSI:error:)))
+        .map({
+          /// $0[0] CBPeripheral
+          /// $0[1] RSSI
+          /// $0[2] error?
+          guard let peripheral = $0[0] as? CBPeripheral else { fatalError() }
+          guard let RSSI = $0[1] as? NSNumber else { fatalError() }
+          return (peripheral, RSSI, $0[2] as? Error)
+        })
+    }
+  }
 
-	public var didDiscoverServices: Observable<Error?> {
-		return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<Error?> in
-			return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didDiscoverServices:)))
-				.map({
-					return $0[1] as? Error
-				})
-		}
-	}
+  /// For more information take a look at `CBPeripheralDelegate`.
+  public var didDiscoverServices: Observable<(peripheral: CBPeripheral, error: Error?)> {
+    return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<(peripheral: CBPeripheral, error: Error?)> in
+      return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didDiscoverServices:)))
+        .map({
+          /// $0[0] CBPeripheral
+          /// $0[1] error?
+          guard let peripheral = $0[0] as? CBPeripheral else { fatalError() }
+          return (peripheral, $0[1] as? Error)
+        })
+    }
+  }
 
-	public var didDiscoverIncludedServices: Observable<ServiceAndError> {
-		return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<ServiceAndError> in
-			return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didDiscoverIncludedServicesFor:error:)))
-				.map({
-					guard let service = $0[1] as? CBService else { fatalError() }
-					return (service: service, error: $0[2] as? Error)
-				})
-		}
-	}
+  public var didDiscoverIncludedServices: Observable<(peripheral: CBPeripheral, service: CBService, error: Error?)> {
+    return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<(peripheral: CBPeripheral, service: CBService, error: Error?)> in
+      return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didDiscoverIncludedServicesFor:error:)))
+        .map({
+          /// $0[0] CBPeripheral
+          /// $0[1] service
+          /// $0[2] error?
+          guard let service = $0[1] as? CBService else { fatalError() }
+          return (source, service, $0[2] as? Error)
+        })
+    }
+  }
 
-	public var didDiscoverCharacteristics: Observable<ServiceAndError> {
-		return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<ServiceAndError> in
-			return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didDiscoverCharacteristicsFor:error:)))
-				.map({
-					guard let service = $0[1] as? CBService else { fatalError() }
-					return (service: service, error: $0[2] as? Error)
-				})
-		}
-	}
+  /// For more information take a look at `CBPeripheralDelegate`.
+  public var didDiscoverCharacteristics: Observable<(peripheral: CBPeripheral, service: CBService, error: Error?)> {
+    return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<(peripheral: CBPeripheral, service: CBService, error: Error?)> in
+      return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didDiscoverCharacteristicsFor:error:)))
+        .map({
+          /// $0[0] CBPeripheral
+          /// $0[1] service
+          /// $0[2] error?
+          guard let service = $0[1] as? CBService else { fatalError() }
+          return (source, service, $0[2] as? Error)
+        })
+    }
+  }
 
-	public var didUpdateValueForCharacteristic: Observable<CharacteristicAndError> {
-		let proxy = RxCBPeripheralDelegateProxy.proxyForObject(base)
-		return proxy.didUpdateValueForCharacteristicPublishSubject
-	}
+  /// For more information take a look at `CBPeripheralDelegate`.
+  public var didUpdateValueForCharacteristic: Observable<(peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?)> {
+    let proxy = RxCBPeripheralDelegateProxy.proxyForObject(base)
+    return proxy.didUpdateValueForCharacteristicPublishSubject
+  }
 
-	public var didUpdateValueForDescriptor: Observable<DescriptorAndError> {
-		let proxy = RxCBPeripheralDelegateProxy.proxyForObject(base)
-		return proxy.didUpdateValueForDescriptorPublishSubject
-	}
+  /// For more information take a look at `CBPeripheralDelegate`.
+  public var didUpdateValueForDescriptor: Observable<(peripheral: CBPeripheral, descriptor: CBDescriptor, error: Error?)> {
+    let proxy = RxCBPeripheralDelegateProxy.proxyForObject(base)
+    return proxy.didUpdateValueForDescriptorPublishSubject
+  }
 
-	public var didWriteValueForCharacteristic: Observable<CharacteristicAndError> {
-		let proxy = RxCBPeripheralDelegateProxy.proxyForObject(base)
-		return proxy.didWriteValueForCharacteristicPublishSubject
-	}
+  /// For more information take a look at `CBPeripheralDelegate`.
+  public var didWriteValueForCharacteristic: Observable<(peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?)> {
+    let proxy = RxCBPeripheralDelegateProxy.proxyForObject(base)
+    return proxy.didWriteValueForCharacteristicPublishSubject
+  }
 
-	public var didWriteValueForDescriptor: Observable<DescriptorAndError> {
-		let proxy = RxCBPeripheralDelegateProxy.proxyForObject(base)
-		return proxy.didWriteValueForDescriptorPublishSubject
-	}
+  /// For more information take a look at `CBPeripheralDelegate`.
+  public var didWriteValueForDescriptor: Observable<(peripheral: CBPeripheral, descriptor: CBDescriptor, error: Error?)> {
+    let proxy = RxCBPeripheralDelegateProxy.proxyForObject(base)
+    return proxy.didWriteValueForDescriptorPublishSubject
+  }
 
-	public var didUpdateNotificationState: Observable<CharacteristicAndError> {
-		return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<CharacteristicAndError> in
-			return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didUpdateNotificationStateFor:error:)))
-				.map({
-					guard let characteristic = $0[1] as? CBCharacteristic else { fatalError() }
-					return (characteristic: characteristic, error: $0[2] as? Error)
-				})
-		}
-	}
+  /// For more information take a look at `CBPeripheralDelegate`.
+  public var didUpdateNotificationState: Observable<(peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?)> {
+    return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<(peripheral: CBPeripheral, characteristic: CBCharacteristic, error: Error?)> in
+      return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didUpdateNotificationStateFor:error:)))
+        .map({
+          /// $0[0] CBPeripheral
+          /// $0[1] CBCharacteristic
+          /// $0[2] error?
+          guard let characteristic = $0[1] as? CBCharacteristic else { fatalError() }
+          return (source, characteristic, $0[2] as? Error)
+        })
+    }
+  }
 
-	public var didDiscoverDescriptors: Observable<DescriptorAndError> {
-		return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<DescriptorAndError> in
-			return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didDiscoverDescriptorsFor:error:)))
-				.map({
-					guard let descriptor = $0[1] as? CBDescriptor else { fatalError() }
-					return (descriptor: descriptor, error: $0[2] as? Error)
-				})
-		}
-	}
+  /// For more information take a look at `CBPeripheralDelegate`.
+  public var didDiscoverDescriptors: Observable<(peripheral: CBPeripheral, descriptor: CBDescriptor, error: Error?)> {
+    return Observable.deferred { [unowned source = self.base as CBPeripheral] () -> Observable<(peripheral: CBPeripheral, descriptor: CBDescriptor, error: Error?)> in
+      return source.rx.delegate.methodInvoked(#selector(CBPeripheralDelegate.peripheral(_:didDiscoverDescriptorsFor:error:)))
+        .map({
+          /// $0[0] CBPeripheral
+          /// $0[1] CBDescriptor
+          /// $0[2] error?
+          guard let descriptor = $0[1] as? CBDescriptor else { fatalError() }
+          return (source, descriptor, $0[2] as? Error)
+        })
+    }
+  }
 }
