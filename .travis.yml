@@ -2,7 +2,12 @@ language: swift
 osx_image: xcode8.3
 script: xcodebuild -project RxCoreBluetooth.xcodeproj -scheme RxCoreBluetooth -destination 'platform=iOS Simulator,name=iPhone 7' build-for-testing test | xcpretty
 
+cache:
+  directories: Carthage
 before_install:
+  - brew update
+  - carthage bootstrap --platform iOS
   - gem install xcpretty
+
 after_success:
   - bash <(curl -s https://codecov.io/bash) -J 'RxCoreBluetooth'
